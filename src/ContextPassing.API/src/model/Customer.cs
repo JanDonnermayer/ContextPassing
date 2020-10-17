@@ -1,3 +1,7 @@
+using System.IO;
+using System.Text;
+using Newtonsoft.Json;
+
 namespace ContextPassing
 {
     public class Customer
@@ -23,4 +27,5 @@ namespace ContextPassing
         public string LastName { get; }
         public string PhoneNumber { get; }
     }
+
 }

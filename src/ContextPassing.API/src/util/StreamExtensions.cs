@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.Net.Http;
 using System.Linq;
+using System.Text;
 
 namespace ContextPassing
 {

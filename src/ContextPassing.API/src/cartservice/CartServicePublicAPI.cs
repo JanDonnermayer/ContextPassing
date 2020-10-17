@@ -29,9 +29,9 @@ namespace ContextPassing
 
         [FunctionName("checkout-page")]
         public static async Task<IActionResult> FunnelPage(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "checkout-page/{nonce}")] HttpRequest req,
-            string nonce,
-            [Table("context", "{nonce}", "{nonce}", Connection = "STORAGE_CONNECTION")] CheckoutContext context,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "checkout-page/{token}")] HttpRequest req,
+            string token,
+            [Table("context", "{token}", "{token}", Connection = "STORAGE_CONNECTION")] CheckoutContext context,
             ILogger log
         )
         {
@@ -67,27 +67,29 @@ namespace ContextPassing
             ILogger log
         )
         {
-            var nonce = Uri.EscapeDataString(Guid.NewGuid().ToString());
-
             var customer = await req.Body
                 .ReadJsonAsync<Customer>()
                 .ConfigureAwait(false);
 
             var context = new CheckoutContext(
-                nonce,
-                funnelId,
-                customer
+                funnelId: funnelId,
+                customer: customer
             );
 
-            var contextJson = new StringContent(
+            var token = context.GetSHA256Hash();
+
+            var contextContent = new StringContent(
                 JsonConvert.SerializeObject(context)
             );
 
             await client.Value
-                .PostAsync($"{CartServiceInternalApi}/checkout-context/{funnelId}/{nonce}", contextJson)
+                .PostAsync(
+                    $"{CartServiceInternalApi}/checkout-context/{funnelId}/{token}",
+                    contextContent
+                )
                 .ConfigureAwait(false);
 
-            var link = $"{CartServicePublicApi}/checkout-page/{nonce}";
+            var link = $"{CartServicePublicApi}/checkout-page/{token}";
 
             return new OkObjectResult(link);
         }

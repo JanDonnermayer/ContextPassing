@@ -16,15 +16,18 @@ namespace ContextPassing
     public static class CartServiceInternalAPI
     {
         [FunctionName("checkout-context-set")]
-        [return: Table("context", "{nonce}", "{nonce}" Connection = "STORAGE_CONNECTION")]
+        [return: Table(
+            tableName: "context",
+            partitionKey: "{token}",
+            rowKey: "{token}",
+            Connection = "STORAGE_CONNECTION"
+        )]
         public static async Task<CheckoutContext> SetContext(
             [HttpTrigger(
                 AuthorizationLevel.Anonymous,
                 "post",
-                Route = "checkout-context/{nonce}"
-            )] HttpRequest req,
-            string nonce,
-            ILogger log
+                Route = "checkout-context/{token}"
+            )] HttpRequest req
         )
         {
             return await req.Body
@@ -37,15 +40,14 @@ namespace ContextPassing
             [HttpTrigger(
                 AuthorizationLevel.Anonymous,
                 "get",
-                Route = "checkout-context/{nonce}"
+                Route = "checkout-context/{token}"
             )] HttpRequest req,
             [Table(
-                "context",
-                "{nonce}",
-                "{nonce}",
+                tableName: "context",
+                partitionKey: "{token}",
+                rowKey: "{token}",
                 Connection = "STORAGE_CONNECTION"
             )] CheckoutContext context
-            ILogger log
         )
         {
             return new OkObjectResult(context);

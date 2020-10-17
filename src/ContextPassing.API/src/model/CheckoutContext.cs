@@ -2,14 +2,11 @@
 {
     public class CheckoutContext
     {
-        public CheckoutContext(string nonce, string funnelId, Customer customer)
+        public CheckoutContext(string funnelId, Customer customer)
         {
-            Nonce = nonce;
             FunnelId = funnelId;
             Customer = customer;
         }
-
-        public string Nonce { get; }
 
         public string FunnelId { get; }
 
