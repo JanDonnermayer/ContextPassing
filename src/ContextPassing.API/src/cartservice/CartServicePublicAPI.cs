@@ -21,9 +21,18 @@ namespace ContextPassing
 
         [FunctionName("checkout-page")]
         public static async Task<IActionResult> FunnelPage(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "checkout-page/{token}")] HttpRequest req,
+            [HttpTrigger(
+                AuthorizationLevel.Anonymous,
+                "get",
+                Route = "checkout-page/{token}"
+            )] HttpRequest req,
             string token,
-            [Table("context", "{token}", "{token}", Connection = "STORAGE_CONNECTION")] StringContentEntity sContext,
+            [Table(
+                "context",
+                "{token}",
+                "{token}",
+                Connection = "STORAGE_CONNECTION"
+            )] StringContentEntity sContext,
             ILogger log
         )
         {
@@ -40,7 +49,7 @@ namespace ContextPassing
                 .GetType()
                 .GetProperties()
                 .ToDictionary(
-                    prop => $"({prop.Name})",
+                    prop => $"$({prop.Name})",
                     prop => prop.GetValue(context.Customer).ToString()
                 )
                 .Aggregate(
@@ -76,7 +85,7 @@ namespace ContextPassing
             );
 
             var token = Uri.EscapeDataString(
-                Guid.NewGuid().ToString()
+                context.GetSHA256Hash()
             );
 
             var contextContent = new StringContent(
