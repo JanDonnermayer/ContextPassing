@@ -9,8 +9,8 @@ namespace ContextPassing
         {
            using var sha = System.Security.Cryptography.SHA256.Create();
            var json = JsonConvert.SerializeObject(obj);
-           var bytes = Encoding.UTF8.GetBytes(json);
-           return Encoding.UTF8.GetString(sha.ComputeHash(bytes));
+           var bytes = Encoding.Unicode.GetBytes(json);
+           return Encoding.Unicode.GetString(sha.ComputeHash(bytes));
         }
     }
 }
