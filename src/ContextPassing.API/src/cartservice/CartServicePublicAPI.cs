@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.Net.Http;
 using System.Linq;
+using static ContextPassing.API.Configuration;
 
 namespace ContextPassing
 {
@@ -17,24 +18,18 @@ namespace ContextPassing
         private static readonly Lazy<HttpClient> client =
             new Lazy<HttpClient>(() => new HttpClient());
 
-        private static string BlobEndpoint =>
-            Environment.GetEnvironmentVariable("BLOB_STORAGE_ENDPOINT");
-
-        private static string CartServicePublicApi =>
-            Environment.GetEnvironmentVariable("WEBSITE_HOSTNAME");
-
-        private static string CartServiceInternalApi =>
-            Environment.GetEnvironmentVariable("WEBSITE_HOSTNAME");
-
 
         [FunctionName("checkout-page")]
         public static async Task<IActionResult> FunnelPage(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "checkout-page/{token}")] HttpRequest req,
             string token,
-            [Table("context", "{token}", "{token}", Connection = "STORAGE_CONNECTION")] CheckoutContext context,
+            [Table("context", "{token}", "{token}", Connection = "STORAGE_CONNECTION")] StringContentEntity sContext,
             ILogger log
         )
         {
+            var context = JsonConvert
+                .DeserializeObject<CheckoutContext>(sContext.Content);
+
             var funnelId = context.FunnelId;
 
             var funnelTemplate = await client.Value
@@ -45,7 +40,7 @@ namespace ContextPassing
                 .GetType()
                 .GetProperties()
                 .ToDictionary(
-                    prop => prop.Name,
+                    prop => $"({prop.Name})",
                     prop => prop.GetValue(context.Customer).ToString()
                 )
                 .Aggregate(
@@ -53,7 +48,11 @@ namespace ContextPassing
                     (t, kvp) => t.Replace(kvp.Key, kvp.Value)
                 );
 
-            return new OkObjectResult(content);
+            return new ContentResult()
+            {
+                Content = content,
+                ContentType = "text/html"
+            };
         }
 
         [FunctionName("checkout-link")]
@@ -76,7 +75,9 @@ namespace ContextPassing
                 customer: customer
             );
 
-            var token = context.GetSHA256Hash();
+            var token = Uri.EscapeDataString(
+                Guid.NewGuid().ToString()
+            );
 
             var contextContent = new StringContent(
                 JsonConvert.SerializeObject(context)
@@ -84,7 +85,7 @@ namespace ContextPassing
 
             await client.Value
                 .PostAsync(
-                    $"{CartServiceInternalApi}/checkout-context/{funnelId}/{token}",
+                    $"{CartServiceInternalApi}/checkout-context/{token}",
                     contextContent
                 )
                 .ConfigureAwait(false);

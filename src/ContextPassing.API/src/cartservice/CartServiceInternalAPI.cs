@@ -12,31 +12,36 @@ using System.Linq;
 
 namespace ContextPassing
 {
-
     public static class CartServiceInternalAPI
     {
         [FunctionName("checkout-context-set")]
         [return: Table(
             tableName: "context",
-            partitionKey: "{token}",
-            rowKey: "{token}",
             Connection = "STORAGE_CONNECTION"
         )]
-        public static async Task<CheckoutContext> SetContext(
+        public static async Task<StringContentEntity> SetContext(
             [HttpTrigger(
                 AuthorizationLevel.Anonymous,
                 "post",
                 Route = "checkout-context/{token}"
-            )] HttpRequest req
+            )] HttpRequest req,
+            string token
         )
         {
-            return await req.Body
-                .ReadJsonAsync<CheckoutContext>()
+            var context = await req.Body
+                .ReadAllTextAsync()
                 .ConfigureAwait(false);
+
+            return new StringContentEntity()
+            {
+                Content = context,
+                PartitionKey = token,
+                RowKey = token
+            };
         }
 
         [FunctionName("checkout-context-get")]
-        public static async Task<IActionResult> GetContext(
+        public static IActionResult GetContext(
             [HttpTrigger(
                 AuthorizationLevel.Anonymous,
                 "get",
@@ -47,10 +52,15 @@ namespace ContextPassing
                 partitionKey: "{token}",
                 rowKey: "{token}",
                 Connection = "STORAGE_CONNECTION"
-            )] CheckoutContext context
+            )] StringContentEntity entity
         )
         {
-            return new OkObjectResult(context);
+            return new ContentResult()
+            {
+                Content = entity.Content,
+                ContentType = "application/json",
+                StatusCode = 200
+            };
         }
     }
 }

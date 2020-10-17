@@ -10,6 +10,8 @@ using Newtonsoft.Json;
 using System.Net.Http;
 using System.Linq;
 
+using static ContextPassing.API.Configuration;
+
 namespace ContextPassing
 {
 
@@ -18,8 +20,6 @@ namespace ContextPassing
         private static readonly Lazy<HttpClient> client =
             new Lazy<HttpClient>(() => new HttpClient());
 
-        private static string CartServicePublicApi =>
-            Environment.GetEnvironmentVariable("WEBSITE_HOSTNAME");
 
         [FunctionName("landing-page")]
         public static async Task<IActionResult> LandingPage(
@@ -27,6 +27,8 @@ namespace ContextPassing
             ILogger log
         )
         {
+            log.LogInformation("API: " + CartServicePublicApi);
+
             var funnelId = "default-funnel.html";
 
             var sampleCustomer = new Customer(
@@ -41,20 +43,22 @@ namespace ContextPassing
                 .PostAsJsonAsync($"{CartServicePublicApi}/checkout-link/{funnelId}", sampleCustomer)
                 .ConfigureAwait(false);
 
-            var checkOutLink = await response.Content.ReadAsStringAsync();
+            var checkOutLink = await response.Content
+                .ReadAsStringAsync()
+                .ConfigureAwait(false);
 
             var markUp =
                 $@"<!DOCTYPE html>
-                <header>
-                </header>
                 <body>
-                    <button (click)='() => window.open({checkOutLink})'>Launch Checkout</button>
+                    <a href=""{checkOutLink}"">
+                        <button>Launch Checkout</button>
+                    </a>
                 </body>";
 
-            return new ContentResult(){
+            return new ContentResult()
+            {
                 Content = markUp,
-                ContentType = "application/html",
-                StatusCode = 200
+                ContentType = "text/html"
             };
         }
     }
