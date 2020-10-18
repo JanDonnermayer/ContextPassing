@@ -13,7 +13,7 @@
 - Url can (accidentally) be modified, making it impossible to correlate a successful checkout -> might lose customer
 
 
-## Pass a JWT token as query-parameter to funnel-page
+## Pass a JWT token with data contained as query-parameter to funnel-page
 
 ### Pros
 
@@ -27,7 +27,7 @@
 - Secret or public/private key pair have to be defined
 
 
-## Pass data to Cart-API that returns checkout-link with unique url
+## Pass json-data to Cart-API that returns checkout-link with unique url
 
 ### Pros
 
