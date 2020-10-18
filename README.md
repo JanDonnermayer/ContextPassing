@@ -12,7 +12,5 @@ that can be used to correlate the checkout completion.
 
 ## Infrastructure
 
-The app is built on the Microsoft Azure Platform and fully functional.
-
 - Merchant-Page, Cart-Page, and Cart-API are modeled as a single Function App for simplicity.
 - The session-storage is built on Azure Table Storage
