@@ -19,12 +19,12 @@ namespace ContextPassing
             new Lazy<HttpClient>(() => new HttpClient());
 
 
-        [FunctionName("checkout-page")]
+        [FunctionName("funnel-page")]
         public static async Task<IActionResult> FunnelPage(
             [HttpTrigger(
                 AuthorizationLevel.Anonymous,
                 "get",
-                Route = "checkout-page/{token}"
+                Route = "funnel-page/{token}"
             )] HttpRequest req,
             string token,
             [Table(
@@ -36,32 +36,41 @@ namespace ContextPassing
             ILogger log
         )
         {
-            var context = JsonConvert
-                .DeserializeObject<CheckoutContext>(sContext.Content);
-
-            var funnelId = context.FunnelId;
-
-            var funnelTemplate = await client.Value
-                .GetStringAsync($"{BlobEndpoint}/funnels/{funnelId}")
-                .ConfigureAwait(false);
-
-            var content = context.Customer
-                .GetType()
-                .GetProperties()
-                .ToDictionary(
-                    prop => $"$({prop.Name})",
-                    prop => prop.GetValue(context.Customer).ToString()
-                )
-                .Aggregate(
-                    funnelTemplate,
-                    (t, kvp) => t.Replace(kvp.Key, kvp.Value)
-                );
-
-            return new ContentResult()
+            try
             {
-                Content = content,
-                ContentType = "text/html"
-            };
+                var context = JsonConvert
+                    .DeserializeObject<CheckoutContext>(sContext.Content);
+
+                var funnelId = context.FunnelId;
+
+                var funnelTemplate = await client.Value
+                    .GetStringAsync($"{BlobEndpoint}/funnels/default-funnel.html")
+                    .ConfigureAwait(false);
+
+                var content = context.Customer
+                    .GetType()
+                    .GetProperties()
+                    .ToDictionary(
+                        prop => $"$({prop.Name})",
+                        prop => prop.GetValue(context.Customer)?.ToString()
+                    )
+                    .Aggregate(
+                        funnelTemplate,
+                        (t, kvp) => t.Replace(kvp.Key, kvp.Value)
+                    );
+
+                return new ContentResult()
+                {
+                    Content = content,
+                    ContentType = "text/html"
+                };
+            }
+            catch (Exception ex)
+            {
+                log.LogError(ex.ToString());
+                return new ObjectResult(ex.Message);
+            }
+
         }
 
         [FunctionName("funnel-link")]
@@ -99,7 +108,7 @@ namespace ContextPassing
                 )
                 .ConfigureAwait(false);
 
-            var link = $"{CartServicePublicApi}/checkout-page/{token}";
+            var link = $"{CartServicePublicApi}/funnel-page/{token}";
 
             return new OkObjectResult(link);
         }

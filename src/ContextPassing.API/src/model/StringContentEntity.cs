@@ -8,6 +8,7 @@ namespace ContextPassing
     public class StringContentEntity : TableEntity
     {
         public string Content {get; set;}
-    }
 
+        public new string ETag { get; } = "*";
+    }
 }

@@ -35,8 +35,7 @@ namespace ContextPassing
                 id: Guid.NewGuid().ToString(),
                 email: "some@mail.com",
                 firstName: "1337Cart",
-                lastName: "User",
-                phoneNumber: "012-1234"
+                lastName: "User"
             );
 
             var response = await client.Value
