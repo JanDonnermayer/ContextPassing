@@ -33,9 +33,10 @@
 
 - Short Url
 - Data cannot be tampered with
-- Can use Header for authentication against api
-- Simple JSON format for passing data (no need for encryption since its not exposed)
 - No framework required for merchant
+- Can use Header for authentication against api
+- Standard JSON format for passing data (no need for encryption since its not exposed)
+- Extensible (could be used to pass other options in the future)
 
 ### Cons
 
