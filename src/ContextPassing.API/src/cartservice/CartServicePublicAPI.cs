@@ -64,12 +64,12 @@ namespace ContextPassing
             };
         }
 
-        [FunctionName("checkout-link")]
+        [FunctionName("funnel-link")]
         public static async Task<IActionResult> CheckoutLink(
             [HttpTrigger(
                 AuthorizationLevel.Anonymous,
                 "post",
-                Route = "checkout-link/{funnelId}"
+                Route = "funnel-link/{funnelId}"
             )] HttpRequest req,
             string funnelId,
             ILogger log

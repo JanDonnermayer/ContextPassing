@@ -40,7 +40,7 @@ namespace ContextPassing
             );
 
             var response = await client.Value
-                .PostAsJsonAsync($"{CartServicePublicApi}/checkout-link/{funnelId}", sampleCustomer)
+                .PostAsJsonAsync($"{CartServicePublicApi}/funnel-link/{funnelId}", sampleCustomer)
                 .ConfigureAwait(false);
 
             var checkOutLink = await response.Content

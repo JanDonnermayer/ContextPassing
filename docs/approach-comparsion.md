@@ -27,7 +27,7 @@
 - Secret or public/private key pair have to be defined
 
 
-## Pass json-data to cart-API that returns checkout-link with unique url
+## Pass json-data to cart-API that returns funnel-link with unique url
 
 ### Pros
 
