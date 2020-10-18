@@ -1,6 +1,6 @@
 # Comparison of Approaches to pass Context
 
-## Pass plain-text query parameters
+## Pass plain-text query parameters to funnel-page
 
 ### Pros
 
@@ -27,7 +27,7 @@
 - Secret or public/private key pair have to be defined
 
 
-## Pass json-data to Cart-API that returns checkout-link with unique url
+## Pass json-data to cart-API that returns checkout-link with unique url
 
 ### Pros
 
