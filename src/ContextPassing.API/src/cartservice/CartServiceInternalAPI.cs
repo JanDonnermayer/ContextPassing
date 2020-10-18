@@ -14,16 +14,16 @@ namespace ContextPassing
 {
     public static class CartServiceInternalAPI
     {
-        [FunctionName("checkout-context-set")]
+        [FunctionName("session-set")]
         [return: Table(
             tableName: "context",
             Connection = "STORAGE_CONNECTION"
         )]
-        public static async Task<StringContentEntity> SetContext(
+        public static async Task<StringContentEntity> SetSession(
             [HttpTrigger(
                 AuthorizationLevel.Anonymous,
                 "post",
-                Route = "checkout-context/{token}"
+                Route = "session/{token}"
             )] HttpRequest req,
             string token
         )
@@ -40,12 +40,12 @@ namespace ContextPassing
             };
         }
 
-        [FunctionName("checkout-context-get")]
-        public static IActionResult GetContext(
+        [FunctionName("session-get")]
+        public static IActionResult GetSession(
             [HttpTrigger(
                 AuthorizationLevel.Anonymous,
                 "get",
-                Route = "checkout-context/{token}"
+                Route = "session/{token}"
             )] HttpRequest req,
             [Table(
                 tableName: "context",

@@ -39,25 +39,24 @@ namespace ContextPassing
             try
             {
                 var context = JsonConvert
-                    .DeserializeObject<CheckoutContext>(sContext.Content);
+                    .DeserializeObject<Session>(sContext.Content);
 
-                var funnelId = context.FunnelId;
-
-                var funnelTemplate = await client.Value
-                    .GetStringAsync($"{BlobEndpoint}/funnels/default-funnel.html")
-                    .ConfigureAwait(false);
-
-                var content = context.Customer
-                    .GetType()
-                    .GetProperties()
-                    .ToDictionary(
-                        prop => $"$({prop.Name})",
-                        prop => prop.GetValue(context.Customer)?.ToString()
-                    )
-                    .Aggregate(
-                        funnelTemplate,
-                        (t, kvp) => t.Replace(kvp.Key, kvp.Value)
-                    );
+                var content = $@"
+                    <h1>Funnel Page</h1>
+                    <table>
+                    <tr>
+                        <td><label>First Name</label></td>
+                        <td><span>{context.Customer.FirstName}</span></td>
+                    </tr>
+                    <tr>
+                        <td><label>Last Name</label></td>
+                        <td><span>{context.Customer.LastName}</span></td>
+                    </tr>
+                    <tr>
+                        <td><label>Email</label></td>
+                        <td><span>{context.Customer.Email}</span></td>
+                    </tr>
+                    </table>";
 
                 return new ContentResult()
                 {
@@ -88,7 +87,7 @@ namespace ContextPassing
                 .ReadJsonAsync<Customer>()
                 .ConfigureAwait(false);
 
-            var context = new CheckoutContext(
+            var context = new Session(
                 funnelId: funnelId,
                 customer: customer
             );
@@ -103,7 +102,7 @@ namespace ContextPassing
 
             await client.Value
                 .PostAsync(
-                    $"{CartServiceInternalApi}/checkout-context/{token}",
+                    $"{CartServiceInternalApi}/session/{token}",
                     contextContent
                 )
                 .ConfigureAwait(false);

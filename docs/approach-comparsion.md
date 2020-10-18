@@ -1,19 +1,18 @@
 # Comparison of Approaches to pass Context
 
-## Pass plain-text query parameters to funnel-page
+## Pass session-data as plain-text in query-parameters to funnel-page
 
 ### Pros
 
-- Most simple to implement for cart-service
 - No framework required for merchant
 
 ### Cons
 
 - Long url that exposes implementation details
-- Url can (accidentally) be modified, making it impossible to correlate a successful checkout -> might lose customer
+- Url can (accidentally) be modified, which could make it impossible to correlate a successful checkout -> might lose customer
 
 
-## Pass a JWT token with data contained as query-parameter to funnel-page
+## Pass session-data as JWT token in query-parameter to funnel-page
 
 ### Pros
 
@@ -24,20 +23,20 @@
 
 - Very long url
 - Merchant needs to use framework and have more expertise
-- Secret or public/private key pair have to be defined
+- Secret or public/private-key-pair among other config have to be setup
+- Expiration of token
 
 
-## Pass json-data to cart-API that returns funnel-link with unique url
+## Pass session-data as JSON to cart-API which creates session and returns funnel-page-link
 
 ### Pros
 
 - Short Url
 - Data cannot be tampered with
 - No framework required for merchant
-- Can use Header for authentication against api
 - Standard JSON format for passing data (no need for encryption since its not exposed)
 - Extensible (could be used to pass other options in the future)
 
 ### Cons
 
-- Cart-Service needs to provide API and store data temporarily
+- Cart-Service needs to provide API and store session-data temporarily

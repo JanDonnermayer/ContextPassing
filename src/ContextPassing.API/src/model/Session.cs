@@ -1,8 +1,8 @@
 ﻿namespace ContextPassing
 {
-    public class CheckoutContext
+    public class Session
     {
-        public CheckoutContext(string funnelId, Customer customer)
+        public Session(string funnelId, Customer customer)
         {
             if (string.IsNullOrEmpty(funnelId))
                 throw new System.ArgumentException($"'{nameof(funnelId)}' cannot be null or empty", nameof(funnelId));
